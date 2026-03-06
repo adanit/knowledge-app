@@ -1,12 +1,12 @@
-## Knowledge Base APP
+# Knowledge Base APP
 
 Projeto de uma aplicação WEB de base de conhecimento para armazenar comandos úteis nas ferramentas de DevOps (Kubernets, Docker, Terraform, Providers, Git e outros)
 
-# Para Rodar localmente
+## Para Rodar localmente
 
 docker compose up -d
 
-# Stack do APP
+## Stack do APP
 
 Backend (Python e Flask — porta 5000)
 
@@ -29,3 +29,5 @@ CRUD completo via formulários HTML
 Banco de dados Postgres - Armazenamento das informações
 
 Redis Cache - Aceleração do APP
+
+--------------------------------------------------------------------------------
