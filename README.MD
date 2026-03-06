@@ -1,5 +1,12 @@
 
-Backend (Flask — porta 5000)
+Projeto de uma aplicação WEB de base de conhecimento para armazenar comandos úteis nas ferramentas de DevOps (Kubernets, Docker, Terraform, Providers, Git e outros)
+
+## Para Rodar localmente
+
+docker compose up -d
+
+
+Backend (Python e Flask — porta 5000)
 
 GET /api/commands — lista todos (aceita ?category=docker)
 POST /api/commands — cria novo
