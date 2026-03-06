@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar - <%= command.title %> - Knowledge Base</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <h1>&#128218; Knowledge Base</h1>
+        <a href="/command/<%= command.id %>" class="btn btn-secondary">&larr; Voltar</a>
+    </header>
+
+    <div class="form-container">
+        <h2>Editar Comando</h2>
+
+        <% if (error) { %>
+            <div class="alert-error"><%= error %></div>
+        <% } %>
+
+        <form action="/command/<%= command.id %>/edit" method="POST">
+            <div class="form-group">
+                <label for="title">Titulo *</label>
+                <input type="text" id="title" name="title" required
+                       value="<%= command.title %>">
+            </div>
+
+            <div class="form-group">
+                <label for="category">Categoria *</label>
+                <input type="text" id="category" name="category" required
+                       value="<%= command.category %>" list="category-suggestions">
+                <datalist id="category-suggestions">
+                    <option value="docker">
+                    <option value="kubernetes">
+                    <option value="terraform">
+                    <option value="ansible">
+                    <option value="linux">
+                    <option value="git">
+                    <option value="aws">
+                    <option value="azure">
+                    <option value="gcp">
+                    <option value="python">
+                    <option value="bash">
+                    <option value="helm">
+                </datalist>
+            </div>
+
+            <div class="form-group">
+                <label for="command">Comando *</label>
+                <textarea id="command" name="command" required><%= command.command %></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Descricao</label>
+                <textarea id="description" name="description" class="plain-text"><%= command.description || '' %></textarea>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">Salvar Alteracoes</button>
+                <a href="/command/<%= command.id %>" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

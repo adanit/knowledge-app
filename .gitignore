@@ -1,0 +1,56 @@
+# ============================================================
+# Node.js / Frontend
+# ============================================================
+
+# Dependencias instaladas pelo npm/yarn (regeneradas com npm install)
+frontend/node_modules/
+
+# Log de erros do npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache do npm
+.npm/
+
+# Variaveis de ambiente locais do Node
+frontend/.env
+frontend/.env.local
+
+# ============================================================
+# Python / Backend
+# ============================================================
+
+# Ambiente virtual Python (se criado localmente fora do Docker)
+backend/venv/
+backend/.venv/
+backend/env/
+
+# Cache de bytecode do Python (gerado automaticamente ao rodar)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Cache do pytest e coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Variaveis de ambiente locais do Python
+backend/.env
+backend/.env.local
+
+# Distribuicao/build do Python
+backend/dist/
+backend/build/
+backend/*.egg-info/
+
+# ============================================================
+# Seguranca - NUNCA commitar
+# ============================================================
+
+# Arquivos .env genericos (pode conter senhas de BD, tokens de API, etc.)
+.env
+.env.*
+!.env.example

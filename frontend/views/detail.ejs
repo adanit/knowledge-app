@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= command.title %> - Knowledge Base</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <h1>&#128218; Knowledge Base</h1>
+        <a href="/" class="btn btn-secondary">&larr; Voltar</a>
+    </header>
+
+    <div class="main">
+        <div class="command-detail">
+            <span class="category-badge"><%= command.category %></span>
+            <h2 style="margin: 0.5rem 0 1rem; color: #1a1a2e;"><%= command.title %></h2>
+
+            <% if (command.description) { %>
+                <p style="color: #555; margin-bottom: 1.2rem; line-height: 1.6;">
+                    <%= command.description %>
+                </p>
+            <% } %>
+
+            <label style="font-weight: 600; font-size: 0.9rem; color: #444;">Comando:</label>
+            <div class="command-block" id="commandText"><%= command.command %></div>
+
+            <button class="btn btn-secondary copy-btn" onclick="copyCommand()" style="margin-bottom: 1.2rem;">
+                &#128203; Copiar Comando
+            </button>
+
+            <p class="meta">
+                Adicionado em: <%= new Date(command.created_at).toLocaleDateString('pt-BR') %>
+            </p>
+
+            <div class="actions" style="margin-top: 1.5rem;">
+                <a href="/command/<%= command.id %>/edit" class="btn btn-primary">Editar</a>
+                <form action="/command/<%= command.id %>/delete" method="POST"
+                      style="display: inline;"
+                      onsubmit="return confirm('Tem certeza que deseja excluir este comando?')">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyCommand() {
+            var text = document.getElementById('commandText').textContent.trim();
+            navigator.clipboard.writeText(text).then(function() {
+                var btn = document.querySelector('.copy-btn');
+                btn.textContent = '\u2713 Copiado!';
+                setTimeout(function() { btn.textContent = '\uD83D\uDCCB Copiar Comando'; }, 2000);
+            }).catch(function() {
+                alert('Nao foi possivel copiar automaticamente. Selecione e copie manualmente.');
+            });
+        }
+    </script>
+</body>
+</html>
