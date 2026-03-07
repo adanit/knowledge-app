@@ -1,11 +1,18 @@
-FROM node:18
-
+# Stage 1: Build the application
+FROM node:18-slim AS builder
 WORKDIR /app
-
+COPY package.json package-lock.json ./
+RUN npm ci
 COPY . .
 
-RUN npm install
-
+# Stage 2: Run the application
+FROM node:18-slim
+WORKDIR /app
+COPY --from=builder /app /app
+RUN useradd -m appuser && chown -R appuser:appuser /app
+USER appuser
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+	CMD node -e "require('http').get('http://localhost:3000/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))" || exit 1
 
 CMD ["node", "app.js"]

@@ -54,3 +54,10 @@ backend/*.egg-info/
 .env
 .env.*
 !.env.example
+
+/frontend/.env
+/frontend/node_modules/
+/backend/.env
+/backend/venv/
+/backend/.venv/
+/backend/env/
