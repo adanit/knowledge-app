@@ -64,3 +64,10 @@ backend/*.egg-info/
 /backend/venv/
 /backend/.venv/
 /backend/env/
+
+/terraform/.terraform/
+/terraform/terraform.tfstate
+terraform.tfstate.backup
+/terraform/.terraform.lock.hcl
+/terraform/deploy.tfvars
+/terraform/containergroup/.terraform/
