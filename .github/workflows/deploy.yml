@@ -72,7 +72,7 @@ jobs:
             - name: Terraform Plan # Nome do Step 5
               run: |
                 cd terraform
-                terraform plan -target=module.rg-module -target=module.acr-module -target=module.acg-module
+                terraform plan -target=module.rg-module -target=module.acr-module
 
             # Passo 6: Aplicar apenas RG e ACR (sem Container Group)
             - name: Terraform Apply # Nome do Step 6
