@@ -36,7 +36,7 @@ module "acg-module" {
   acr_password     = module.acr-module.cr_admin_password
 
   ct_frontend_name     = "knowledge-app-frontend"
-  ct_frontend_image    = "${module.acr-module.cr_name}/kbapp-frontend:latest"
+  ct_frontend_image    = "${module.acr-module.cr_login_server}/kbapp-frontend:latest"
   ct_frontend_cpu      = var.ct_frontend_cpu
   ct_frontend_memory   = var.ct_frontend_memory
   api_url              = var.api_url
@@ -45,7 +45,7 @@ module "acg-module" {
 
 
   ct_backend_name     = "knowledge-app-backend"
-  ct_backend_image    = "${module.acr-module.cr_name}/kbapp-backend:latest"
+  ct_backend_image    = "${module.acr-module.cr_login_server}/kbapp-backend:latest"
   ct_backend_cpu      = var.ct_backend_cpu
   ct_backend_memory   = var.ct_backend_memory
   database_url        = var.database_url
