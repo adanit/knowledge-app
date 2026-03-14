@@ -61,6 +61,7 @@ jobs:
               uses: hashicorp/setup-terraform@v2 # Ação para configurar o Terraform.
               with:
                 terraform_version: 1.5.0 # Especifica a versão do Terraform a ser usada.
+                terraform_wrapper: false # Desabilita o wrapper para permitir uso de terraform output -raw em subshell
 
             # Passo 4: Inicializar e preparar o Terraform
             - name: Terraform Init # Nome do Step 4
