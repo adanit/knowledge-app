@@ -28,38 +28,68 @@ jobs:
             
             # Passo 4: Gerar o arquivo de variáveis do Terraform
             - name: Gerar deploy.tfvars # Nome do Step 4
+              env:
+                SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+                CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+                CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+                TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
+                RG_LOCATION: ${{ vars.TF_RG_LOCATION }}
+                CR_SKU: ${{ vars.TF_CR_SKU }}
+                ACG_IP_ADDRESS_TYPE: ${{ vars.TF_ACG_IP_ADDRESS_TYPE }}
+                ACG_DNS_NAME_LABEL: ${{ vars.TF_ACG_DNS_NAME_LABEL }}
+                ACG_OS_TYPE: ${{ vars.TF_ACG_OS_TYPE }}
+                CT_FRONTEND_CPU: ${{ vars.TF_CT_FRONTEND_CPU }}
+                CT_FRONTEND_MEMORY: ${{ vars.TF_CT_FRONTEND_MEMORY }}
+                API_URL: ${{ vars.TF_API_URL }}
+                CT_FRONTEND_PORT: ${{ vars.TF_CT_FRONTEND_PORT }}
+                CT_FRONTEND_PROTOCOL: ${{ vars.TF_CT_FRONTEND_PROTOCOL }}
+                CT_BACKEND_CPU: ${{ vars.TF_CT_BACKEND_CPU }}
+                CT_BACKEND_MEMORY: ${{ vars.TF_CT_BACKEND_MEMORY }}
+                CT_BACKEND_PORT: ${{ vars.TF_CT_BACKEND_PORT }}
+                CT_BACKEND_PROTOCOL: ${{ vars.TF_CT_BACKEND_PROTOCOL }}
+                DATABASE_URL: ${{ secrets.TF_DATABASE_URL }}
+                REDIS_URL: ${{ secrets.TF_REDIS_URL }}
+                CT_POSTGRES_CPU: ${{ vars.TF_CT_POSTGRES_CPU }}
+                CT_POSTGRES_MEMORY: ${{ vars.TF_CT_POSTGRES_MEMORY }}
+                POSTGRES_DB: ${{ vars.TF_POSTGRES_DB }}
+                POSTGRES_USER: ${{ vars.TF_POSTGRES_USER }}
+                POSTGRES_PASSWORD: ${{ secrets.TF_POSTGRES_PASSWORD }}
+                CT_POSTGRES_PORT: ${{ vars.TF_CT_POSTGRES_PORT }}
+                CT_POSTGRES_PROTOCOL: ${{ vars.TF_CT_POSTGRES_PROTOCOL }}
+                CT_REDIS_CPU: ${{ vars.TF_CT_REDIS_CPU }}
+                CT_REDIS_MEMORY: ${{ vars.TF_CT_REDIS_MEMORY }}
               run: |
-                cat > terraform/deploy.tfvars <<EOF
-                subscription_id      = "${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}"
-                client_id            = "${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}"
-                client_secret        = "${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}"
-                tenant_id            = "${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
-                rg_location          = "${{ vars.TF_RG_LOCATION }}"
-                cr_sku               = "${{ vars.TF_CR_SKU }}"
-                acg_ip_address_type  = "${{ vars.TF_ACG_IP_ADDRESS_TYPE }}"
-                acg_dns_name_label   = "${{ vars.TF_ACG_DNS_NAME_LABEL }}"
-                acg_os_type          = "${{ vars.TF_ACG_OS_TYPE }}"
-                ct_frontend_cpu      = ${{ vars.TF_CT_FRONTEND_CPU }}
-                ct_frontend_memory   = ${{ vars.TF_CT_FRONTEND_MEMORY }}
-                api_url              = "${{ vars.TF_API_URL }}"
-                ct_frontend_port     = ${{ vars.TF_CT_FRONTEND_PORT }}
-                ct_frontend_protocol = "${{ vars.TF_CT_FRONTEND_PROTOCOL }}"
-                ct_backend_cpu       = ${{ vars.TF_CT_BACKEND_CPU }}
-                ct_backend_memory    = ${{ vars.TF_CT_BACKEND_MEMORY }}
-                ct_backend_port      = ${{ vars.TF_CT_BACKEND_PORT }}
-                ct_backend_protocol  = "${{ vars.TF_CT_BACKEND_PROTOCOL }}"
-                database_url         = "${{ secrets.TF_DATABASE_URL }}"
-                redis_url            = "${{ secrets.TF_REDIS_URL }}"
-                ct_postgres_cpu      = ${{ vars.TF_CT_POSTGRES_CPU }}
-                ct_postgres_memory   = ${{ vars.TF_CT_POSTGRES_MEMORY }}
-                postgres_db          = "${{ vars.TF_POSTGRES_DB }}"
-                postgres_user        = "${{ vars.TF_POSTGRES_USER }}"
-                postgres_password    = "${{ secrets.TF_POSTGRES_PASSWORD }}"
-                ct_postgres_port     = ${{ vars.TF_CT_POSTGRES_PORT }}
-                ct_postgres_protocol = "${{ vars.TF_CT_POSTGRES_PROTOCOL }}"
-                ct_redis_cpu         = ${{ vars.TF_CT_REDIS_CPU }}
-                ct_redis_memory      = ${{ vars.TF_CT_REDIS_MEMORY }}
-                EOF
+                {
+                  echo "subscription_id      = \"$SUBSCRIPTION_ID\""
+                  echo "client_id            = \"$CLIENT_ID\""
+                  echo "client_secret        = \"$CLIENT_SECRET\""
+                  echo "tenant_id            = \"$TENANT_ID\""
+                  echo "rg_location          = \"$RG_LOCATION\""
+                  echo "cr_sku               = \"$CR_SKU\""
+                  echo "acg_ip_address_type  = \"$ACG_IP_ADDRESS_TYPE\""
+                  echo "acg_dns_name_label   = \"$ACG_DNS_NAME_LABEL\""
+                  echo "acg_os_type          = \"$ACG_OS_TYPE\""
+                  echo "ct_frontend_cpu      = $CT_FRONTEND_CPU"
+                  echo "ct_frontend_memory   = $CT_FRONTEND_MEMORY"
+                  echo "api_url              = \"$API_URL\""
+                  echo "ct_frontend_port     = $CT_FRONTEND_PORT"
+                  echo "ct_frontend_protocol = \"$CT_FRONTEND_PROTOCOL\""
+                  echo "ct_backend_cpu       = $CT_BACKEND_CPU"
+                  echo "ct_backend_memory    = $CT_BACKEND_MEMORY"
+                  echo "ct_backend_port      = $CT_BACKEND_PORT"
+                  echo "ct_backend_protocol  = \"$CT_BACKEND_PROTOCOL\""
+                  echo "database_url         = \"$DATABASE_URL\""
+                  echo "redis_url            = \"$REDIS_URL\""
+                  echo "ct_postgres_cpu      = $CT_POSTGRES_CPU"
+                  echo "ct_postgres_memory   = $CT_POSTGRES_MEMORY"
+                  echo "postgres_db          = \"$POSTGRES_DB\""
+                  echo "postgres_user        = \"$POSTGRES_USER\""
+                  echo "postgres_password    = \"$POSTGRES_PASSWORD\""
+                  echo "ct_postgres_port     = $CT_POSTGRES_PORT"
+                  echo "ct_postgres_protocol = \"$CT_POSTGRES_PROTOCOL\""
+                  echo "ct_redis_cpu         = $CT_REDIS_CPU"
+                  echo "ct_redis_memory      = $CT_REDIS_MEMORY"
+                } > terraform/deploy.tfvars
 
             # Passo 5: Inicializar e preparar o Terraform
             - name: Terraform Init # Nome do Step 5
