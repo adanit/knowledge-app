@@ -2,9 +2,9 @@ resource "azurerm_container_group" "acg" {
   name                = var.acg_name
   location            = var.acg_location
   resource_group_name = var.rg_name
-  ip_address_type     = title(lower(var.acg_ip_address_type))
+  ip_address_type     = "Public"
   dns_name_label      = var.acg_dns_name_label
-  os_type             = title(lower(var.acg_os_type))
+  os_type             = "Linux"
 
   container {
     name   = var.ct_frontend_name
