@@ -24,3 +24,7 @@ output "cr_admin_password" {
   value = module.acr-module.cr_admin_password
   sensitive = true
 }
+
+output "app_url" {
+  value = "http://${var.acg_dns_name_label}.eastus2.azurecontainer.io:3000"
+}
