@@ -69,10 +69,12 @@ jobs:
                 export ARM_CLIENT_SECRET="${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}"
                 export ARM_SUBSCRIPTION_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}"
                 export ARM_TENANT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
-                export ARM_ACCESS_KEY=$(az storage account keys list \
-                  --resource-group "rg-labinfo-prod-eus2-001" \
-                  --account-name "strterraformbackend001" \
+                ARM_ACCESS_KEY=$(az storage account keys list \
+                  --resource-group "rg-labinfo-prod-brs-001" \
+                  --account-name "strtfstatelabinfo001" \
                   --query "[0].value" -o tsv)
+                echo "ARM_ACCESS_KEY=$ARM_ACCESS_KEY" >> $GITHUB_ENV
+                export ARM_ACCESS_KEY
 
                 terraform init
 
@@ -85,7 +87,9 @@ jobs:
                 export ARM_SUBSCRIPTION_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}"
                 export ARM_TENANT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
 
-                terraform plan -var-file="deploy.tfvars" -target=azurerm_resource_group.rg -target=azurerm_container_registry.acr -target=azurerm_container_group.acg
+                export ARM_ACCESS_KEY="${{ env.ARM_ACCESS_KEY }}"
+
+                terraform plan -var-file="deploy.tfvars" -target=module.rg-module -target=module.acr-module -target=module.acg-module
 
             
             
@@ -98,57 +102,52 @@ jobs:
                 export ARM_SUBSCRIPTION_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}"
                 export ARM_TENANT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
 
+                export ARM_ACCESS_KEY="${{ env.ARM_ACCESS_KEY }}"
+
                 # Aplicar apenas os recursos essenciais para criar a infraestrutura básica (Resource Group, Container Registry e Container Group)
-                terraform apply -auto-approve -var-file="deploy.tfvars" -target=azurerm_resource_group.rg -target=azurerm_container_registry.acr -target=azurerm_container_group.acg
+                terraform apply -auto-approve -var-file="deploy.tfvars" -target=module.rg-module -target=module.acr-module -target=module.acg-module
             
             
-            # Passo 7: Build das Imagens do Docker (Frontend e Backend)
-            - name: Build and Push Docker Images # Nome do Step 7
+            # Passo 8: Build das Imagens do Docker (Frontend e Backend)
+            - name: Build and Push Docker Images # Nome do Step 8
               run: |
-                # Configurar o Terraform para usar as credenciais do Azure
                 export ARM_CLIENT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}"
                 export ARM_CLIENT_SECRET="${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}"
                 export ARM_SUBSCRIPTION_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}"
                 export ARM_TENANT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
+                export ARM_ACCESS_KEY="${{ env.ARM_ACCESS_KEY }}"
 
                 # Buscar informações do Azure Container Registry (ACR) criado pelo Terraform
-                ACR_SERVER=$(cd terraform && terraform output -raw acr_login_server) # Obter o login server do ACR
-                ACR_USERNAME=$(cd terraform && terraform output -raw acr_username) # Obter o nome de usuário do ACR
-                ACR_PASSWORD=$(cd terraform && terraform output -raw acr_password) # Obter a senha do ACR
-                RANDON_SUFFIX=$(cd terraform && terraform output -raw random_suffix) # Obter o sufixo aleatório para garantir nomes únicos
+                ACR_SERVER=$(cd terraform && terraform output -raw cr_login_server)
+                ACR_USERNAME=$(cd terraform && terraform output -raw cr_admin_username)
+                ACR_PASSWORD=$(cd terraform && terraform output -raw cr_admin_password)
 
                 # Fazer login no Azure Container Registry (ACR)
                 echo $ACR_PASSWORD | docker login $ACR_SERVER -u $ACR_USERNAME --password-stdin
 
                 # Build e Push da Imagem do Frontend
-                docker build -t $ACR_SERVER/kbapp-frontend:latest -f ./frontend
+                docker build -t $ACR_SERVER/kbapp-frontend:latest -f ./frontend/Dockerfile ./frontend
                 docker push $ACR_SERVER/kbapp-frontend:latest
 
                 # Build e Push da Imagem do Backend
-                docker build -t $ACR_SERVER/kbapp-backend:latest -f ./backend
+                docker build -t $ACR_SERVER/kbapp-backend:latest -f ./backend/Dockerfile ./backend
                 docker push $ACR_SERVER/kbapp-backend:latest
 
-            # Passo 8: Aplicar as mudanças finais no Azure para atualizar os containers com as novas imagens
-            - name: Deploy dos Containers no Azure # Nome do Step 8
+            # Passo 9: Aplicar as mudanças finais no Azure para atualizar os containers com as novas imagens
+            - name: Deploy dos Containers no Azure # Nome do Step 9
               run: |
                 cd terraform
                 export ARM_CLIENT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}"
                 export ARM_CLIENT_SECRET="${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}"
                 export ARM_SUBSCRIPTION_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}"
                 export ARM_TENANT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
+                export ARM_ACCESS_KEY="${{ env.ARM_ACCESS_KEY }}"
 
-                # Aplicar as mudanças finais para atualizar os containers com as novas imagens do ACR
-                terraform apply -auto-approve -var-file="deploy.tfvars"
+                # Aplicar as mudanças finais e forçar a recriação do Container Group com as novas imagens
+                terraform apply -auto-approve -var-file="deploy.tfvars" -replace="module.acg-module.azurerm_container_group.acg"
 
-                # Forçar a recriação do Container Group para garantir que as novas imagens sejam usadas (opcional, dependendo de como o Terraform detecta as mudanças)
-                if terraform state show azurerm_container_group.acg > /dev/null 2>&1; then
-                terraform taint azurerm_container_group.acg
-                fi
-
-                terraform apply -auto-approve
-
-            # Passo 9: URL de Acesso à Aplicação
-            - name: Output URL # Nome do Step 9
+            # Passo 10: URL de Acesso à Aplicação
+            - name: Output URL # Nome do Step 10
               run: |
                 cd terraform
                 export ARM_CLIENT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}"
