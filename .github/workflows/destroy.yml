@@ -1,0 +1,90 @@
+name: Destroy Knowledge App no Azure
+
+# Executar manualmente com confirmação obrigatória
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Digite "destruir" para confirmar a destruição da infraestrutura'
+        required: true
+        default: ''
+
+# Definir os jobs para o workflow
+jobs:
+    destroy:
+        runs-on: ubuntu-latest
+
+        # Bloquear execução se a confirmação não for válida
+        if: ${{ github.event.inputs.confirm == 'destruir' }}
+
+        env:
+            ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+            ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+            ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+            ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
+            ARM_ACCESS_KEY: ${{ secrets.TF_BACKEND_ACCESS_KEY }}
+            TF_VAR_subscription_id: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+            TF_VAR_client_id: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+            TF_VAR_client_secret: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+            TF_VAR_tenant_id: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
+            TF_VAR_rg_location: ${{ vars.TF_RG_LOCATION }}
+            TF_VAR_cr_sku: ${{ vars.TF_CR_SKU }}
+            TF_VAR_acg_ip_address_type: ${{ vars.TF_ACG_IP_ADDRESS_TYPE }}
+            TF_VAR_acg_dns_name_label: ${{ vars.TF_ACG_DNS_NAME_LABEL }}
+            TF_VAR_acg_os_type: ${{ vars.TF_ACG_OS_TYPE }}
+            TF_VAR_ct_frontend_cpu: ${{ vars.TF_CT_FRONTEND_CPU }}
+            TF_VAR_ct_frontend_memory: ${{ vars.TF_CT_FRONTEND_MEMORY }}
+            TF_VAR_api_url: ${{ vars.TF_API_URL }}
+            TF_VAR_ct_frontend_port: ${{ vars.TF_CT_FRONTEND_PORT }}
+            TF_VAR_ct_frontend_protocol: ${{ vars.TF_CT_FRONTEND_PROTOCOL }}
+            TF_VAR_ct_backend_cpu: ${{ vars.TF_CT_BACKEND_CPU }}
+            TF_VAR_ct_backend_memory: ${{ vars.TF_CT_BACKEND_MEMORY }}
+            TF_VAR_ct_backend_port: ${{ vars.TF_CT_BACKEND_PORT }}
+            TF_VAR_ct_backend_protocol: ${{ vars.TF_CT_BACKEND_PROTOCOL }}
+            TF_VAR_database_url: ${{ secrets.TF_DATABASE_URL }}
+            TF_VAR_redis_url: ${{ secrets.TF_REDIS_URL }}
+            TF_VAR_ct_postgres_cpu: ${{ vars.TF_CT_POSTGRES_CPU }}
+            TF_VAR_ct_postgres_memory: ${{ vars.TF_CT_POSTGRES_MEMORY }}
+            TF_VAR_postgres_db: ${{ vars.TF_POSTGRES_DB }}
+            TF_VAR_postgres_user: ${{ vars.TF_POSTGRES_USER }}
+            TF_VAR_postgres_password: ${{ secrets.TF_POSTGRES_PASSWORD }}
+            TF_VAR_ct_postgres_port: ${{ vars.TF_CT_POSTGRES_PORT }}
+            TF_VAR_ct_postgres_protocol: ${{ vars.TF_CT_POSTGRES_PROTOCOL }}
+            TF_VAR_ct_redis_cpu: ${{ vars.TF_CT_REDIS_CPU }}
+            TF_VAR_ct_redis_memory: ${{ vars.TF_CT_REDIS_MEMORY }}
+
+        steps:
+            # Passo 1: Verificar o código-fonte do repositório
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            # Passo 2: Autenticar no Azure
+            - name: Azure Login
+              uses: azure/login@v1
+              with:
+                creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            # Passo 3: Setup do Terraform
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v2
+              with:
+                terraform_version: 1.5.0
+                terraform_wrapper: false
+
+            # Passo 4: Inicializar o Terraform (necessário para aceder ao state)
+            - name: Terraform Init
+              run: |
+                cd terraform
+                terraform init
+
+            # Passo 5: Plano de destruição (visibilidade do que será removido)
+            - name: Terraform Plan Destroy
+              run: |
+                cd terraform
+                terraform plan -destroy
+
+            # Passo 6: Destruir toda a infraestrutura
+            - name: Terraform Destroy
+              run: |
+                cd terraform
+                terraform destroy -auto-approve
