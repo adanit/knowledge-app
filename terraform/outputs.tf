@@ -3,7 +3,7 @@ output "rg-name" {
 }
 
 output "rg-location" {
-  value = module.rg-module.location
+  value = module.rg-module.rg_location
 }
 
 output "cr_name" {
