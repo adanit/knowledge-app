@@ -26,8 +26,43 @@ jobs:
               with:
                 terraform_version: 1.5.0 # Especifica a versão do Terraform a ser usada.
             
-            # Passo 4: Inicializar e preparar o Terraform
-            - name: Terraform Init # Nome do Step 4
+            # Passo 4: Gerar o arquivo de variáveis do Terraform
+            - name: Gerar deploy.tfvars # Nome do Step 4
+              run: |
+                cat > terraform/deploy.tfvars <<EOF
+                subscription_id      = "${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}"
+                client_id            = "${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}"
+                client_secret        = "${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}"
+                tenant_id            = "${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
+                rg_location          = "${{ vars.TF_RG_LOCATION }}"
+                cr_sku               = "${{ vars.TF_CR_SKU }}"
+                acg_ip_address_type  = "${{ vars.TF_ACG_IP_ADDRESS_TYPE }}"
+                acg_dns_name_label   = "${{ vars.TF_ACG_DNS_NAME_LABEL }}"
+                acg_os_type          = "${{ vars.TF_ACG_OS_TYPE }}"
+                ct_frontend_cpu      = ${{ vars.TF_CT_FRONTEND_CPU }}
+                ct_frontend_memory   = ${{ vars.TF_CT_FRONTEND_MEMORY }}
+                api_url              = "${{ vars.TF_API_URL }}"
+                ct_frontend_port     = ${{ vars.TF_CT_FRONTEND_PORT }}
+                ct_frontend_protocol = "${{ vars.TF_CT_FRONTEND_PROTOCOL }}"
+                ct_backend_cpu       = ${{ vars.TF_CT_BACKEND_CPU }}
+                ct_backend_memory    = ${{ vars.TF_CT_BACKEND_MEMORY }}
+                ct_backend_port      = ${{ vars.TF_CT_BACKEND_PORT }}
+                ct_backend_protocol  = "${{ vars.TF_CT_BACKEND_PROTOCOL }}"
+                database_url         = "${{ secrets.TF_DATABASE_URL }}"
+                redis_url            = "${{ secrets.TF_REDIS_URL }}"
+                ct_postgres_cpu      = ${{ vars.TF_CT_POSTGRES_CPU }}
+                ct_postgres_memory   = ${{ vars.TF_CT_POSTGRES_MEMORY }}
+                postgres_db          = "${{ vars.TF_POSTGRES_DB }}"
+                postgres_user        = "${{ vars.TF_POSTGRES_USER }}"
+                postgres_password    = "${{ secrets.TF_POSTGRES_PASSWORD }}"
+                ct_postgres_port     = ${{ vars.TF_CT_POSTGRES_PORT }}
+                ct_postgres_protocol = "${{ vars.TF_CT_POSTGRES_PROTOCOL }}"
+                ct_redis_cpu         = ${{ vars.TF_CT_REDIS_CPU }}
+                ct_redis_memory      = ${{ vars.TF_CT_REDIS_MEMORY }}
+                EOF
+
+            # Passo 5: Inicializar e preparar o Terraform
+            - name: Terraform Init # Nome do Step 5
               run: |
                 cd terraform # Navega para o diretório onde estão os arquivos do Terraform.
                 export ARM_CLIENT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}"
@@ -41,8 +76,8 @@ jobs:
 
                 terraform init
 
-            # Passo 5: Planejar a aplicação da infraestrutura
-            - name: Terraform Plan # Nome do Step 5
+            # Passo 6: Planejar a aplicação da infraestrutura
+            - name: Terraform Plan # Nome do Step 6
               run: |
                 cd terraform
                 export ARM_CLIENT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}"
@@ -50,12 +85,12 @@ jobs:
                 export ARM_SUBSCRIPTION_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}"
                 export ARM_TENANT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
 
-                terraform plan -target=azurerm_resource_group.rg -target=azurerm_container_registry.acr -target=azurerm_container_group.acg
+                terraform plan -var-file="deploy.tfvars" -target=azurerm_resource_group.rg -target=azurerm_container_registry.acr -target=azurerm_container_group.acg
 
             
             
-            # Passo 6: Aplicar a infraestrutura básica no Azure
-            - name: Terraform Apply # Nome do Step 6
+            # Passo 7: Aplicar a infraestrutura básica no Azure
+            - name: Terraform Apply # Nome do Step 7
               run: |
                 cd terraform
                 export ARM_CLIENT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}"
@@ -64,7 +99,7 @@ jobs:
                 export ARM_TENANT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
 
                 # Aplicar apenas os recursos essenciais para criar a infraestrutura básica (Resource Group, Container Registry e Container Group)
-                terraform apply -auto-approve -target=azurerm_resource_group.rg -target=azurerm_container_registry.acr -target=azurerm_container_group.acg
+                terraform apply -auto-approve -var-file="deploy.tfvars" -target=azurerm_resource_group.rg -target=azurerm_container_registry.acr -target=azurerm_container_group.acg
             
             
             # Passo 7: Build das Imagens do Docker (Frontend e Backend)
@@ -103,7 +138,7 @@ jobs:
                 export ARM_TENANT_ID="${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
 
                 # Aplicar as mudanças finais para atualizar os containers com as novas imagens do ACR
-                terraform apply -auto-approve
+                terraform apply -auto-approve -var-file="deploy.tfvars"
 
                 # Forçar a recriação do Container Group para garantir que as novas imagens sejam usadas (opcional, dependendo de como o Terraform detecta as mudanças)
                 if terraform state show azurerm_container_group.acg > /dev/null 2>&1; then
