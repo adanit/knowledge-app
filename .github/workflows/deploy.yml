@@ -74,11 +74,11 @@ jobs:
                 cd terraform
                 terraform plan -target=module.rg-module -target=module.acr-module -target=module.acg-module
 
-            # Passo 6: Aplicar a infraestrutura básica no Azure
+            # Passo 6: Aplicar apenas RG e ACR (sem Container Group)
             - name: Terraform Apply # Nome do Step 6
               run: |
                 cd terraform
-                terraform apply -auto-approve -target=module.rg-module -target=module.acr-module -target=module.acg-module
+                terraform apply -auto-approve -target=module.rg-module -target=module.acr-module
             
             
             # Passo 7: Build das Imagens do Docker (Frontend e Backend)
@@ -99,11 +99,11 @@ jobs:
                 docker build -t $ACR_SERVER/kbapp-backend:latest -f ./backend/Dockerfile ./backend
                 docker push $ACR_SERVER/kbapp-backend:latest
 
-            # Passo 8: Aplicar as mudanças finais no Azure para atualizar os containers com as novas imagens
+            # Passo 8: Criar/atualizar Container Group com as imagens recém publicadas
             - name: Deploy dos Containers no Azure # Nome do Step 8
               run: |
                 cd terraform
-                terraform apply -auto-approve -replace="module.acg-module.azurerm_container_group.acg"
+                terraform apply -auto-approve
 
             # Passo 9: URL de Acesso à Aplicação
             - name: Output URL # Nome do Step 9

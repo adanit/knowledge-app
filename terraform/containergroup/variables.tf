@@ -28,6 +28,23 @@ variable "acg_os_type" {
   type        = string
 }
 
+variable "acr_login_server" {
+  description = "Login server do Container Registry"
+  type        = string
+}
+
+variable "acr_username" {
+  description = "Usuário admin do Container Registry"
+  type        = string
+  sensitive   = true
+}
+
+variable "acr_password" {
+  description = "Senha admin do Container Registry"
+  type        = string
+  sensitive   = true
+}
+
 variable "ct_frontend_name" {
   description = "Nome do Container Frontend"
   type        = string

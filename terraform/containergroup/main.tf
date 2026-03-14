@@ -6,6 +6,12 @@ resource "azurerm_container_group" "acg" {
   dns_name_label      = var.acg_dns_name_label
   os_type             = "Linux"
 
+  image_registry_credential {
+    server   = var.acr_login_server
+    username = var.acr_username
+    password = var.acr_password
+  }
+
   container {
     name   = var.ct_frontend_name
     image  = var.ct_frontend_image

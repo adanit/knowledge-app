@@ -31,6 +31,10 @@ module "acg-module" {
   acg_dns_name_label  = var.acg_dns_name_label
   acg_os_type         = var.acg_os_type
 
+  acr_login_server = module.acr-module.cr_login_server
+  acr_username     = module.acr-module.cr_admin_username
+  acr_password     = module.acr-module.cr_admin_password
+
   ct_frontend_name     = "knowledge-app-frontend"
   ct_frontend_image    = "${module.acr-module.cr_name}/kbapp-frontend:latest"
   ct_frontend_cpu      = var.ct_frontend_cpu
