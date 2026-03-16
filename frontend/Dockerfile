@@ -1,12 +1,12 @@
 # Stage 1: Build the application
-FROM node:18-slim AS builder
+FROM node:20-slim AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
 
 # Stage 2: Run the application
-FROM node:18-slim
+FROM node:20-slim
 WORKDIR /app
 ENV NEW_RELIC_NO_CONFIG_FILE=true
 ENV NEW_RELIC_DISTRIBUTED_TRACING_ENABLED=true
