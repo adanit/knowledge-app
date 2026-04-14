@@ -52,6 +52,7 @@ jobs:
             TF_VAR_ct_postgres_protocol: ${{ vars.TF_CT_POSTGRES_PROTOCOL }}
             TF_VAR_ct_redis_cpu: ${{ vars.TF_CT_REDIS_CPU }}
             TF_VAR_ct_redis_memory: ${{ vars.TF_CT_REDIS_MEMORY }}
+            TF_VAR_frontend_nr_license_key: ${{ secrets.TF_FRONTEND_NR_LICENSE_KEY }}
 
         steps:
             # Passo 1: Verificar o código-fonte do repositório
