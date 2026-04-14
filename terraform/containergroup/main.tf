@@ -20,7 +20,7 @@ resource "azurerm_container_group" "acg" {
     environment_variables = {
       API_URL= var.api_url
       NEW_RELIC_APP_NAME = "kbapp-frontend"
-      NEW_RELIC_LICENSE_KEY = "25cc108181a49b1682b75cb3906c7d29FFFFNRAL"
+      NEW_RELIC_LICENSE_KEY = var.frontend_nr_license_key
     }
 
     ports {

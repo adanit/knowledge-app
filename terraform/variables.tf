@@ -68,6 +68,12 @@ variable "ct_frontend_protocol" {
   type        = string
 }
 
+variable "frontend_nr_license_key" {
+  description = "Chave de licença do New Relic para o Container Frontend"
+  type        = string
+  sensitive   = true
+}
+
 variable "ct_backend_cpu" {
   description = "CPU do Container Backend"
   type        = number

@@ -42,7 +42,7 @@ module "acg-module" {
   api_url              = var.api_url
   ct_frontend_port     = var.ct_frontend_port
   ct_frontend_protocol = var.ct_frontend_protocol
-
+  frontend_nr_license_key = var.frontend_nr_license_key
 
   ct_backend_name     = "knowledge-app-backend"
   ct_backend_image    = "${module.acr-module.cr_login_server}/kbapp-backend:latest"

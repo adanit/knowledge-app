@@ -65,6 +65,12 @@ variable "ct_frontend_memory" {
   type        = number
 }
 
+variable "frontend_nr_license_key" {
+  description = "Chave de licença do New Relic para o Container Frontend"
+  type        = string
+  sensitive   = true
+}
+
 variable "api_url" {
   description = "URL do Backend"
   type        = string
