@@ -35,13 +35,13 @@ module "acg-module" {
   acr_username     = module.acr-module.cr_admin_username
   acr_password     = module.acr-module.cr_admin_password
 
-  ct_frontend_name     = "knowledge-app-frontend"
-  ct_frontend_image    = "${module.acr-module.cr_login_server}/kbapp-frontend:latest"
-  ct_frontend_cpu      = var.ct_frontend_cpu
-  ct_frontend_memory   = var.ct_frontend_memory
-  api_url              = var.api_url
-  ct_frontend_port     = var.ct_frontend_port
-  ct_frontend_protocol = var.ct_frontend_protocol
+  ct_frontend_name        = "knowledge-app-frontend"
+  ct_frontend_image       = "${module.acr-module.cr_login_server}/kbapp-frontend:latest"
+  ct_frontend_cpu         = var.ct_frontend_cpu
+  ct_frontend_memory      = var.ct_frontend_memory
+  api_url                 = var.api_url
+  ct_frontend_port        = var.ct_frontend_port
+  ct_frontend_protocol    = var.ct_frontend_protocol
   frontend_nr_license_key = var.frontend_nr_license_key
 
   ct_backend_name     = "knowledge-app-backend"
